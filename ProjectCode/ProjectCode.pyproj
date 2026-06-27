@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>9a461778-5bef-4ded-942f-60710cb2bab0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ProjectCode.py</StartupFile>
+    <StartupFile>model.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ProjectCode.py" />
+    <Compile Include="agent.py" />
+    <Compile Include="main.py" />
+    <Compile Include="model.py" />
+    <Compile Include="server.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

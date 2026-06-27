@@ -3,8 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\ProjectCode.py||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|solutionrelative:ProjectCode.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+      "AbsoluteMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\agent.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|solutionrelative:agent.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\model.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|solutionrelative:model.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\main.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|solutionrelative:main.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\server.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{9A461778-5BEF-4DED-942F-60710CB2BAB0}|ProjectCode.pyproj|solutionrelative:server.py||{8B382828-6202-11D1-8870-0000F87579D2}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,19 +26,58 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ProjectCode.py",
-              "DocumentMoniker": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\ProjectCode.py",
-              "RelativeDocumentMoniker": "ProjectCode.py",
-              "ToolTip": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\ProjectCode.py",
-              "RelativeToolTip": "ProjectCode.py",
+              "DocumentIndex": 1,
+              "Title": "model.py",
+              "DocumentMoniker": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\model.py",
+              "RelativeDocumentMoniker": "model.py",
+              "ToolTip": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\model.py",
+              "RelativeToolTip": "model.py",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
               "WhenOpened": "2026-06-27T23:04:26.604Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "agent.py",
+              "DocumentMoniker": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\agent.py",
+              "RelativeDocumentMoniker": "agent.py",
+              "ToolTip": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\agent.py",
+              "RelativeToolTip": "agent.py",
+              "ViewState": "AgIAAEUAAAAAAAAAAADwv2AAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-06-27T23:13:36.297Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "server.py",
+              "DocumentMoniker": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\server.py",
+              "RelativeDocumentMoniker": "server.py",
+              "ToolTip": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\server.py",
+              "RelativeToolTip": "server.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-06-27T23:13:44.489Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "main.py",
+              "DocumentMoniker": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\main.py",
+              "RelativeDocumentMoniker": "main.py",
+              "ToolTip": "C:\\Users\\rowan\\Documents\\College Files\\modeling\\EscapeRaccoonCity\\ProjectCode\\main.py",
+              "RelativeToolTip": "main.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-06-27T23:13:54.108Z",
               "EditorCaption": ""
             }
           ]
