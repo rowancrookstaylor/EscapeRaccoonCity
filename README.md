@@ -13,6 +13,7 @@ requries: python 3.14, mesa 1.2.1 (NOT 2.x), numpy, networkx
 setup: download and unzip repo folder, all files are in folder titled ProjectCode
 
 ## Usage
+
 **steps:** 
 1. navigate to ProjectCode solution folder
 2. run main.py --- broswer should open automatically
