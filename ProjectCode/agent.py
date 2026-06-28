@@ -5,6 +5,7 @@ import random
 import math
 
 
+
 class CitizenAgent(Agent):
     def __init__(self, uid, model):
         super().__init__(uid, model)
@@ -12,6 +13,7 @@ class CitizenAgent(Agent):
         # infection state (healthy = s, exposed = e, infected = i, dead/escaped = r)
         self.state = "S"
         self.infection_timer = 0
+        self.ever_infected = False
 
         # needs
         self.hunger = random.uniform(0,1)
@@ -56,6 +58,9 @@ class CitizenAgent(Agent):
     def infect_other(self):
         if self.state != "I":
             return
+
+        if self.state == "I":
+            self.ever_infected = True
 
         neighbors = self.model.grid.get_cell_list_contents([self.pos])
 
