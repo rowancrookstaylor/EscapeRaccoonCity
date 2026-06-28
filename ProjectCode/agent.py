@@ -20,7 +20,7 @@ class CitizenAgent(Agent):
         # movement
         self.speed = 1
 
-    def distance_to_escape(self):
+    def distance_to_edge(self):
         x, y = self.pos
         center_x = self.model.width / 2
         center_y = self.model.height / 2
@@ -51,52 +51,53 @@ class CitizenAgent(Agent):
         if best_cell:
             self.model.grid.move_agent(self, best_cell)
 
-        # spread infection (if infected)
-        def infect_other(self):
-            if self.state != "I":
-                return
 
-            neighbors = self.model.grid.get_cell_list_contents([self.pos])
+    # spread infection (if infected)
+    def infect_other(self):
+        if self.state != "I":
+            return
 
-            for agent in neighbors:
-                if agent.state == "S":
-                    if random.random() < .2:
-                        agent.state = "E"
-                        agent.infection_timer = 0
+        neighbors = self.model.grid.get_cell_list_contents([self.pos])
+
+        for agent in neighbors:
+            if agent.state == "S":
+                if random.random() < .2:
+                    agent.state = "E"
+                    agent.infection_timer = 0
 
         
-        def update_health(self):
+    def update_health(self):
 
-            # become infected after exposure
-            if self.state == "E":
-                self.infection_timer += 1
-                if self.infection_timer >10:
-                    self.state = "I"
+        # become infected after exposure
+        if self.state == "E":
+            self.infection_timer += 1
+            if self.infection_timer >10:
+                self.state = "I"
 
-            # starvation and thirst
-            self.hunger += .01
-            self.thirst += .02
+        # starvation and thirst
+        self.hunger += .01
+        self.thirst += .02
 
-            # die of hunger/thirst if not infected, become infected if exposed
-            if (self.hunger > 1.5 or self.thirst > 1.5) and self.state != "I":
-                if self.state == "E": self.state = "I"          # after exposure, if citizen dies, they become infected
-                else: self.state = "R"
+        # die of hunger/thirst if not infected, become infected if exposed
+        if (self.hunger > 1.5 or self.thirst > 1.5) and self.state != "I":
+            if self.state == "E": self.state = "I"          # after exposure, if citizen dies, they become infected
+            else: self.state = "R"
 
-            def check_escape(self):
-                x, y = self.pos
-                if x == 0 or y == 0 or x == self.model.width-1 or y == self.model.height-1:
-                    if self.state == "S":
-                        self.model.escaped += 1
-                    self.state = "R"
+    def check_escape(self):
+        x, y = self.pos
+        if x == 0 or y == 0 or x == self.model.width-1 or y == self.model.height-1:
+            if self.state == "S":
+                self.model.escaped += 1
+            self.state = "R"
 
-            def step(self):
-                if self.state == "R":
-                    return
+    def step(self):
+        if self.state == "R":
+            return
 
-                self.move()
-                self.infect_other()
-                self.update_health()
-                self.check_escape()
+        self.move()
+        self.infect_other()
+        self.update_health()
+        self.check_escape()
 
 
 
