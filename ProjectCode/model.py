@@ -1,4 +1,3 @@
-from importlib.machinery import NamespaceLoader
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
@@ -33,10 +32,10 @@ class ZombieModel(Model):
 
         self.datacollector = DataCollector(
             model_reporters={
-                "Escaped": count_escaped,
-                "Infected": count_infected,
-                "Dead_PreInfection": count_dead_pre_infection,
-                "Dead_Infected": count_dead_infected
+                "Escaped": self.count_escaped,
+                "Infected": self.count_infected,
+                "Dead_PreInfection": self.count_dead_pre_infection,
+                "Dead_Infected": self.count_dead_infected
             }
         )
 

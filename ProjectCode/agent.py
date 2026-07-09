@@ -1,5 +1,3 @@
-
-from encodings.punycode import selective_find
 from mesa import Agent
 import random
 import math
@@ -10,7 +8,7 @@ class CitizenAgent(Agent):
     def __init__(self, uid, model):
         super().__init__(uid, model)
 
-        # infection state (healthy = s, exposed = e, infected = i, dead/escaped = r)
+        # infection state (healthy = s, exposed = e, infected = i, dead = d, escaped = r)
         self.state = "S"
         self.infection_timer = 0
         self.ever_infected = False
@@ -22,8 +20,8 @@ class CitizenAgent(Agent):
         # movement
         self.speed = 1
 
-    def distance_to_edge(self):
-        x, y = self.pos
+    def distance_to_edge(self, pos):
+        x, y = pos
         center_x = self.model.width / 2
         center_y = self.model.height / 2
         return math.sqrt((x - center_x)**2 + (y - center_y)**2)
@@ -41,7 +39,7 @@ class CitizenAgent(Agent):
         best_score = float("inf")
 
         for cell in neighbors:
-            dist = self.distance_to_edge()
+            dist = self.distance_to_edge(cell)
 
             # bias toward edge
             score = dist + random.random()
@@ -84,9 +82,9 @@ class CitizenAgent(Agent):
         self.thirst += .02
 
         # die of hunger/thirst if not infected, become infected if exposed
-        if (self.hunger > 1.5 or self.thirst > 1.5) and self.state != "I":
+        if (self.hunger > 1.5 or self.thirst > 1.5) and self.state != "I" and self.state != "R":
             if self.state == "E": self.state = "I"          # after exposure, if citizen dies, they become infected
-            else: self.state = "R"
+            else: self.state = "D"
 
     def check_escape(self):
         x, y = self.pos

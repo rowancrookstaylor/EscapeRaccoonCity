@@ -1,7 +1,6 @@
 
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
-from networkx import modularity_matrix
 from model import ZombieModel
 
 def agent_portrayal(agent):
@@ -11,6 +10,8 @@ def agent_portrayal(agent):
         color = "yellow"
     elif agent.state == "I":
         color = "red"
+    elif agent.state == "D":
+        color = "gray"
     else:
         color = "black"
 
