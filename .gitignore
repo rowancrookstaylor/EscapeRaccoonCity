@@ -1,1 +1,10 @@
-.vs
+# VS Code / Visual Studio
+.vs/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
