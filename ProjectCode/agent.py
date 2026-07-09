@@ -1,7 +1,6 @@
 from mesa import Agent
 import random
 import math
-from supply_depo import SupplyDepot
 import heapq
 
 
@@ -23,7 +22,7 @@ class CitizenAgent(Agent):
       
         self.home_pos = None    # home position (for infected)
 
-        self.vision_radius = 8 # vision radius for infected to detect survivors
+        self.vision_radius = 6 # vision radius for infected to detect survivors
         self.infection_radius = 1  # infection radius for infected to infect survivors
 
         self.aware = False
@@ -31,6 +30,11 @@ class CitizenAgent(Agent):
 
         self.target_depot = None  # target supply depot for survivors
 
+        self.current_path = []
+        self.path_target = None
+
+
+# A* pathfinding algorithm for escape movement
     def heuristic(self, a, b):
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
@@ -56,7 +60,10 @@ class CitizenAgent(Agent):
                 if self.is_blocked(next_cell):
                     continue
 
-                new_cost = cost_so_far[current] + 1  # Assuming uniform cost for movement
+                base_cost = 1
+                danger = self.danger_cost(next_cell)
+                new_cost = cost_so_far[current] + base_cost + danger
+
                 if next_cell not in cost_so_far or new_cost < cost_so_far[next_cell]:
                     cost_so_far[next_cell] = new_cost
 
@@ -79,6 +86,45 @@ class CitizenAgent(Agent):
         path.reverse()
 
         return path
+    
+    '''
+    def danger_cost(self, pos):
+        cost = 0
+        cells = self.model.grid.get_neighborhood(pos, moore=True,include_center=True, radius =2)
+
+        for cell in cells:
+            agents = self.model.grid.get_cell_list_contents([cell])
+
+            for agent in agents:
+                if hasattr(agent, "state") and agent.state == "I":
+                    dist = self.distance_between(pos, agent.pos)
+
+                    # BEHAVIOR ADJUSTMENT FOR DANGER
+                    if dist == 0:
+                        return 100
+
+                    cost += (3 - dist) * 5
+
+                    if self.aware == False: cost *= .5  # if not aware, danger cost is halved
+
+        return cost
+    '''
+    def danger_cost(self, pos):
+        agents = self.model.grid.get_cell_list_contents([pos])
+
+        for agent in agents:
+            if hasattr(agent, "state") and agent.state == "I":
+                return 50
+
+        neighbors = self.model.grid.get_neighborhood(pos, moore=True, include_center=False)
+
+        for cell in neighbors:
+            agents = self.model.grid.get_cell_list_contents([cell])
+
+            for agent in agents:
+                if hasattr(agent, "state") and agent.state == "I":
+                    return 10
+        return 0
 
     def distance_to_edge(self, pos):
         x, y = pos
@@ -92,9 +138,7 @@ class CitizenAgent(Agent):
         return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
     
     def distance_between(self, pos1, pos2):
-        x1, y1 = pos1
-        x2, y2 = pos2
-        return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+        return abs(pos1[0] - pos2[0]) + abs(pos1[1] -pos2[1])
 
 # MOVEMENT FOR THE SURVIVORS
 
@@ -157,45 +201,21 @@ class CitizenAgent(Agent):
                 return True
         return False
 
-    """ old escape move before adding A* ;;; will delete later its just here for reference:
-    # move towards exit
-    def escape_move(self):
-        neighbors = self.model.grid.get_neighborhood(
-            self.pos, moore=True, include_center=False)
-
-        best_cell = None
-        best_score = float("-inf")
-
-        for cell in neighbors:
-            dist = self.distance_to_edge(cell)
-            score = dist + random.random()
-
-            if score > best_score:
-                best_score = score
-                best_cell = cell
-
-        if best_cell:
-            self.model.grid.move_agent(self, best_cell)
-            """
 
     def escape_move(self):
-        exits = []
-        for x in range(self.model.width):
-            exits.append((x,0))
-            exits.append((x,self.model.height-1))
+        if not self.current_path or self.path_target is None:
+            goal = self.get_closest_exit()
+            path = self.a_star(self.pos, goal)
 
-        for y in range(self.model.height):
-            exits.append((0,y))
-            exits.append((self.model.width-1,y))
-
-        goal = min(exits, key=lambda exit: self.distance_to(exit))
-
-        path = self.a_star(self.pos, goal)
-
-        if path:
-            next_step = path[0]
+            if path:
+                self.current_path = path
+                self.path_target = goal
+        if self.current_path:
+            next_step = self.current_path.pop(0)
             self.model.grid.move_agent(self, next_step)
 
+    def get_closest_exit(self):
+        return min(self.model.exits, key=lambda e: self.distance_to(e))
 
 
 # MOVEMENT FOR THE INFECTED
@@ -292,8 +312,11 @@ class CitizenAgent(Agent):
 
             if self.detect_infected():
                 self.aware = True
+                self.current_path = []  # reset path when becoming aware
 
             if self.aware:
+                if random.random() < .2:
+                    self.current_path = []  # reset path occasionally to recalculate
                 self.escape_move()
             else:
                 self.normal_move()
@@ -314,7 +337,7 @@ class CitizenAgent(Agent):
 
             for agent in agents:
                 if hasattr(agent, "state") and agent.state == "S":
-                    if random.random() < .9:
+                    if random.random() < .5:
                         agent.state = "E"
                         agent.infection_timer = 0
 
@@ -334,7 +357,7 @@ class CitizenAgent(Agent):
         self.thirst += .02
 
         # die of hunger/thirst if not infected, become infected if exposed
-        if (self.hunger > 1.2 or self.thirst > 1.2) and self.state != "I" and self.state != "R":
+        if (self.hunger > 1.0 or self.thirst > 1.0) and self.state != "I" and self.state != "R":
             if self.state == "E": 
                 self.state = "I"          # after exposure, if citizen dies, they become infected
                 self.home_pos = self.pos

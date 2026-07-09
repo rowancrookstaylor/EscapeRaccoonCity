@@ -37,6 +37,16 @@ class ZombieModel(Model):
 
         self.escaped = 0
 
+        self.exits = []
+
+        for x in range(self.width):
+            self.exits.append((x,0))
+            self.exits.append((x,self.height-1))
+
+        for y in range(self.height):
+            self.exits.append((0,y))
+            self.exits.append((self.width-1,y))
+
         self.datacollector = DataCollector(
             model_reporters={
                 "Escaped": self.count_escaped,
