@@ -22,7 +22,7 @@ class ZombieModel(Model):
 
     def __init__(self, N=500, width=50, height=50):
         self.num_agents = N
-        self.grid = MultiGrid(width, height, True)
+        self.grid = MultiGrid(width, height, False)
         self.schedule = RandomActivation(self)
 
         self.width = width
@@ -35,7 +35,9 @@ class ZombieModel(Model):
                 "Escaped": self.count_escaped,
                 "Infected": self.count_infected,
                 "Dead_PreInfection": self.count_dead_pre_infection,
-                "Dead_Infected": self.count_dead_infected
+                "Dead_Infected": self.count_dead_infected,
+                "Survivors": self.count_survivors,
+                "Exposed": self.count_exposed
             }
         )
 
@@ -52,8 +54,9 @@ class ZombieModel(Model):
 
 
         # initial infection
-        for agent in random.sample(self.schedule.agents, int(N * .05)):
+        for agent in random.sample(self.schedule.agents, int(N * .07)):
             agent.state = "I"
+            agent.home_pos = agent.pos
 
     
 
