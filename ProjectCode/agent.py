@@ -17,6 +17,10 @@ class CitizenAgent(Agent):
 
         self.hunger = random.uniform(0,1)   # needs
         self.thirst = random.uniform(0,1)
+        
+        self.has_weapon = False
+        self.weapon_attempts = 0
+        self.max_weapon_attempts = 6
 
         self.speed = 1  # movement
       
@@ -27,6 +31,7 @@ class CitizenAgent(Agent):
 
         self.aware = False
         self.citizen_vision_radius = 10
+        self.social_radius = 3 # for social force implementation
 
         self.target_depot = None  # target supply depot for survivors
 
@@ -37,6 +42,7 @@ class CitizenAgent(Agent):
         self.escape_weight = random.uniform(0.8,1.2)
         self.supply_weight = random.uniform(0.8,1.2)
         self.risk_weight = random.uniform(0.8,1.2)
+
 
 
 
@@ -75,10 +81,90 @@ class CitizenAgent(Agent):
         utility = (need_score * self.supply_weight + distance_score)
 
         return utility
+
+
+# social force implementation
+    def goal_force(self, target):
+    # desire to reach a destination/gives them a direction
+        dx = target[0] - self.pos[0]
+        dy = target[1] - self.pos[1]
+
+        distance = math.sqrt(dx**2 + dy**2)
+        if distance == 0:
+            return (0,0)
+        return (dx/distance, dy/distance)
+
+    def citizen_repulsion(self):
+    # prevents collision
+        force_x = 0
+        force_y = 0
+        cells = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False,radius=self.social_radius)
+
+        for cell in cells:
+            agents = self.model.grid.get_cell_list_contents([cell])
+            for agent in agents:
+                if agent != self and hasattr(agent,"state") and agent.state in ["S","E"]:
+                    dx = self.pos[0] - agent.pos[0]
+                    dy = self.pos[1] - agent.pos[1]
+
+                    distance = math.sqrt(dx**2 + dy**2)
+                    if distance > 0:
+                        strength = 1 / distance
+                        force_x += (dx /distance) * strength
+                        force_y ++ (dy/distance) * strength
+        return (force_x, force_y)
+
+    def zombie_repulsion(self):
+        force_x = 0
+        force_y = 0
+
+        cells = self.model.grid.get_neighborhood(self.pos, moore=True, include_center= False, radius = self.citizen_vision_radius)
+
+        for cell in cells:
+            agents = self.model.grid.get_cell_list_contents([cell])
+
+            for agent in agents:
+                if hasattr(agent,"state") and agent.state == "I":
+                    dx = self.pos[0] - agent.pos[0]
+                    dy = self.pos[1] - agent.pos[1]
+
+                    distance = math.sqrt(dx**2 + dy**2)
+
+                    if distance > 0:
+                        strength = 5 / distance
+                        force_x += (dx/distance) * strength
+                        force_y += (dy/distance) * strength
+        return (force_x,force_y)
+
+    def social_force_move(self, target):
+        goal_x, goal_y = self.goal_force(target)
+        people_x, people_y = self.citizen_repulsion()
+        zombie_x, zombie_y = self.zombie_repulsion()
+
+        total_x = (goal_x + people_x + zombie_x)
+        total_y = (goal_y + people_y + zombie_y)
+
+        neighbors = self.model.grid.get_neighborhood(self.pos,moore=True,include_center=False)
         
+        best_cell = None
+        best_score = -999
+
+        for cell in neighbors:
+            movement_x = cell[0] - self.pos[0]
+            movement_y = cell[1] - self.pos[1]
+
+            score = (movement_x * total_x + movement_y * total_y)
+
+            if not self.is_blocked(cell):
+                if score > best_score:
+                    best_score = score
+                    best_cell = cell
+        if best_cell:
+            self.model.grid.move_agent(self, best_cell)
+
+
         
 # A* pathfinding algorithm for survivor movement
-
     def heuristic(self, a, b): #functionally the same as distance_between but i kept it for the sake of maintaining the expected structure/keywords for the A* function
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
@@ -191,9 +277,7 @@ class CitizenAgent(Agent):
         
         neighbors = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
 
-        best_cell = min(neighbors, key=lambda cell: self.distance_between(cell, closest.pos))
-
-        self.model.grid.move_agent(self, best_cell)
+        self.social_force_move(closest.pos)
 
         if self.pos == closest.pos:
             closest.provide_resources(self)
@@ -235,9 +319,10 @@ class CitizenAgent(Agent):
             if path:
                 self.current_path = path
                 self.path_target = goal
+
         if self.current_path:
-            next_step = self.current_path.pop(0)
-            self.model.grid.move_agent(self, next_step)
+            target = self.current_path[0]
+            self.social_force_move(target)
 
     def get_closest_exit(self):
         return min(self.model.exits, key=lambda e: self.distance_to(e))
@@ -347,7 +432,57 @@ class CitizenAgent(Agent):
                         self.escape_move()
                     else: self.normal_move()
 
+# combat from citizens
+    def pickup_weapon(self):
+        cells = self.model.grid.get_neighborhood(
+            self.pos,
+            moore=True,
+            include_center=True,
+            radius=1
+        )
 
+        for cell in cells:
+            agents = self.model.grid.get_cell_list_contents([cell])
+
+            for agent in agents:
+                if agent.__class__.__name__ == "SupplyDepot":
+                    if agent.has_weapons_stock():
+                        return agent.provide_weapon(self)
+
+        return False
+
+    def shoot_zombie(self):
+
+        if not self.has_weapon:
+            return
+
+        if self.weapon_attempts >= self.max_weapon_attempts:
+            self.has_weapon = False
+            return
+
+
+        cells = self.model.grid.get_neighborhood(
+            self.pos,
+            moore=True,
+            include_center=True,
+            radius=2
+        )
+
+
+        for cell in cells:
+            agents = self.model.grid.get_cell_list_contents([cell])
+            for agent in agents:
+                if hasattr(agent,"state") and agent.state == "I":
+
+                    self.weapon_attempts += 1
+
+                    # 20% chance to kill zombie
+                    if random.random() < .2:
+                        agent.state = "D"
+                        agent.obstacle = False
+
+                    # only shoot one zombie per attempt
+                    return
 
     # spread infection (if infected)
     def infect_other(self):
@@ -400,8 +535,12 @@ class CitizenAgent(Agent):
                 self.state = "R"
 
     def step(self):
-        if self.state == "R":
+        if self.state in ["R", "D"]:
             return
+
+        if self.state == "S":
+            self.pickup_weapon()
+            self.shoot_zombie()
 
         self.move()
         self.infect_other()

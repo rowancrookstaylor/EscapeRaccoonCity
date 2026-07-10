@@ -4,6 +4,7 @@ from mesa.space import MultiGrid
 from agent import CitizenAgent
 import random
 from mesa.datacollection import DataCollector
+from obstacle import ObstacleAgent
 from supply_depo import SupplyDepot
 
 
@@ -27,6 +28,54 @@ class ZombieModel(Model):
     def count_exposed(model):
         return sum(1 for a in model.schedule.agents if hasattr(a, "state") and  a.state == "E")
 
+
+    def create_obstacles(self):
+        obstacle_id = 10000
+
+        buildings = [
+            (20,20,10,15),
+            (50,10,15,10),
+            (70,50,10,20),
+            (30,70,20,10),
+            (5,10,6,8),
+            (15,45,8,6),
+            (5,70,10,10),
+            (35,10,7,5),
+            (42,30,8,8),
+            (55,35,6,10),
+            (80,15,8,8),
+            (88,35,6,12),
+            (75,80,12,7),
+        ]
+
+        for x_start, y_start, width, height in buildings:
+
+            for x in range(x_start, x_start + width):
+                for y in range(y_start, y_start + height):
+
+                    obstacle = ObstacleAgent(
+                        obstacle_id,
+                        self
+                    )
+
+                    self.grid.place_agent(
+                        obstacle,
+                        (x,y)
+                    )
+
+                    obstacle_id += 1
+
+
+    def valid_position(self,pos):
+        agents = self.grid.get_cell_list_contents([pos])
+
+        for agent in agents:
+            if hasattr(agent,"obstacle") and agent.obstacle:
+                return False
+
+        return True
+
+
     def __init__(self, N=500, width=100, height=100):
         self.num_agents = N
         self.grid = MultiGrid(width, height, False)
@@ -34,6 +83,8 @@ class ZombieModel(Model):
 
         self.width = width
         self.height = height
+
+        self.create_obstacles()
 
         self.escaped = 0
 
@@ -65,9 +116,16 @@ class ZombieModel(Model):
             agent = CitizenAgent(i, self)
             self.schedule.add(agent)
 
-            x = random.randrange(self.grid.width)
-            y = random.randrange(self.grid.height)
-            self.grid.place_agent(agent, (x,y))
+            while True:
+                pos = (
+                    random.randrange(self.width),
+                    random.randrange(self.height)
+                )
+
+                if self.valid_position(pos):
+                    break
+
+            self.grid.place_agent(agent, pos)
 
 
         # initial infection
@@ -81,10 +139,16 @@ class ZombieModel(Model):
             depot = SupplyDepot(1000+i, self)
             self.schedule.add(depot)
 
-            x = random.randrange(self.grid.width)
-            y = random.randrange(self.grid.height)
+            while True:
+                pos = (
+                    random.randrange(self.width),
+                    random.randrange(self.height)
+                )
 
-            self.grid.place_agent(depot, (x,y))
+                if self.valid_position(pos):
+                    break
+
+            self.grid.place_agent(depot, pos)
 
     
 
