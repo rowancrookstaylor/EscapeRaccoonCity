@@ -20,8 +20,9 @@ class SimulationStats(TextElement):
         percentage_infected = (infected / total) * 100 if total > 0 else 0
         percentage_total_escaped = (escaped / total) * 100 if total > 0 else 0
         percentage_still_alive = ((survivors) / total) * 100 if total > 0 else 0
-        
-        return f"Survivors: {survivors} | Exposed: {exposed} | Infected: {infected} | Dead: {dead} | Escaped: {escaped} <br/> Percentage Infected: {percentage_infected} <br/> Percentage Escaped: {percentage_total_escaped} <br/> Percentage Alive and in the City: {percentage_still_alive}"
+        percentage_dead_before_infection = (dead / total) * 100 if total > 0 else 0
+
+        return f"Survivors: {round(survivors, 2)} | Exposed: {round(exposed, 2)} | Infected: {round(infected, 2)} | Dead: {round(dead, 2)} | Escaped: {round(escaped, 2)} <br/> Percentage Infected: {round(percentage_infected, 2)} <br/> Percentage Escaped: {round(percentage_total_escaped, 2)} <br/> Percentage Alive and in the City: {round(percentage_still_alive, 2)}"
 
 def agent_portrayal(agent):
     if agent.__class__.__name__ == "SupplyDepot":

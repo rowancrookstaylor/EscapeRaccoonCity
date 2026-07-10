@@ -5,8 +5,8 @@ class SupplyDepot(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
 
-        self.food = random.randint(0, 20)  # Random amount of food between 5 and 20
-        self.water = random.randint(0, 30)  # Random amount of water between 10 and 30
+        self.food = random.randint(10, 30)  # Random amount of food between 5 and 20
+        self.water = random.randint(20, 50)  # Random amount of water between 10 and 30
 
 
     def has_resources(self):

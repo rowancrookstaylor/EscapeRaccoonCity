@@ -33,12 +33,57 @@ class CitizenAgent(Agent):
         self.current_path = []
         self.path_target = None
 
+        # weights for utility function
+        self.escape_weight = random.uniform(0.8,1.2)
+        self.supply_weight = random.uniform(0.8,1.2)
+        self.risk_weight = random.uniform(0.8,1.2)
 
-# A* pathfinding algorithm for escape movement
-    def heuristic(self, a, b):
+
+
+# Utlity functions
+    def calculate_escape_utility(self):
+    # calculate the value of escape
+        distance = self.distance_to(self.get_closest_exit())
+
+        distance_score = 1 / (distance + 1)
+        danger_score = 0
+        if self.detect_infected():
+            danger_score = 1
+
+        utility = (distance_score * self.escape_weight) + (danger_score * self.risk_weight)
+
+        return utility
+
+    def calculate_supply_utility(self):
+    # calculate the value of getting supplies
+        hunger_need = self.hunger
+        thirst_need = self.thirst
+
+        need_score = hunger_need + thirst_need
+
+        depots = self.find_nearby_depots()
+
+        if not depots:
+            return 0
+
+        closest = min(depots, key=lambda depots:self.distance_to(depots.pos))
+
+        distance = self.distance_to(closest.pos)
+
+        distance_score = 1/(distance+1)
+
+        utility = (need_score * self.supply_weight + distance_score)
+
+        return utility
+        
+        
+# A* pathfinding algorithm for survivor movement
+
+    def heuristic(self, a, b): #functionally the same as distance_between but i kept it for the sake of maintaining the expected structure/keywords for the A* function
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def a_star(self, start, goal):
+    # main A* pathfinding function
         frontier = []
         heapq.heappush(frontier, (0, start))
 
@@ -86,29 +131,7 @@ class CitizenAgent(Agent):
         path.reverse()
 
         return path
-    
-    '''
-    def danger_cost(self, pos):
-        cost = 0
-        cells = self.model.grid.get_neighborhood(pos, moore=True,include_center=True, radius =2)
-
-        for cell in cells:
-            agents = self.model.grid.get_cell_list_contents([cell])
-
-            for agent in agents:
-                if hasattr(agent, "state") and agent.state == "I":
-                    dist = self.distance_between(pos, agent.pos)
-
-                    # BEHAVIOR ADJUSTMENT FOR DANGER
-                    if dist == 0:
-                        return 100
-
-                    cost += (3 - dist) * 5
-
-                    if self.aware == False: cost *= .5  # if not aware, danger cost is halved
-
-        return cost
-    '''
+  
     def danger_cost(self, pos):
         agents = self.model.grid.get_cell_list_contents([pos])
 
@@ -142,8 +165,8 @@ class CitizenAgent(Agent):
 
 # MOVEMENT FOR THE SURVIVORS
 
-    # get supplies if needed
     def find_nearby_depots(self):
+        # get supplies if needed
         depots = []
         cells = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=True, radius = 20)
 
@@ -154,10 +177,12 @@ class CitizenAgent(Agent):
                     depots.append(agent)
         return depots
 
-    def needs_supplies(self): # determine need for supplies based on hunger and thirst levels
+    def needs_supplies(self): 
+    # determine need for supplies based on hunger and thirst levels
         return self.hunger > .7 or self.thirst > 0.7
 
-    def move_towards_depot(self): #move towards the closest supply depot if there is one
+    def move_towards_depot(self): 
+    # move towards the closest supply depot if there is one
         depots = self.find_nearby_depots()
         if not depots:
             return False  # No depots found
@@ -304,22 +329,24 @@ class CitizenAgent(Agent):
             self.infected_move()
 
         elif self.state in ["S", "E"]:
-            if self.needs_supplies():
+            escape_utility = self.calculate_escape_utility()
+            supply_utility = self.calculate_supply_utility()
+
+            if supply_utility > escape_utility:
                 got_supplies = self.move_towards_depot()
-
-                if got_supplies:
-                    return  # moved towards depot, skip other movement
-
-            if self.detect_infected():
-                self.aware = True
-                self.current_path = []  # reset path when becoming aware
-
-            if self.aware:
-                if random.random() < .2:
-                    self.current_path = []  # reset path occasionally to recalculate
-                self.escape_move()
+                if got_supplies: return
             else:
-                self.normal_move()
+                if self.detect_infected():
+                    self.aware = True
+                    self.current_path = []
+
+                    if self.aware:
+                        if random.random() < .2:
+                            self.current_path = []
+
+                        self.escape_move()
+                    else: self.normal_move()
+
 
 
     # spread infection (if infected)
