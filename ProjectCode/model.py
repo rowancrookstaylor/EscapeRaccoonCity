@@ -6,6 +6,9 @@ import random
 from mesa.datacollection import DataCollector
 from obstacle import ObstacleAgent
 from supply_depo import SupplyDepot
+import json
+
+with open("config.json") as file: CONFIG = json.load(file)
 
 
 class ZombieModel(Model):
@@ -99,17 +102,22 @@ class ZombieModel(Model):
         return True
 
 
-    def __init__(self, N=500, width=100, height=100):
-        self.num_agents = N
-        self.grid = MultiGrid(width, height, False)
+    def __init__(self):
+        self.num_agents = CONFIG["population"]
+        self.width = CONFIG["width"]
+        self.height = CONFIG["height"]
+
+        self.grid = MultiGrid(
+            self.width,
+            self.height,
+            False
+        )
         self.schedule = RandomActivation(self)
 
         self.time = 0
-        self.max_time = 30
+        self.max_time = CONFIG["max_steps"]
         self.city_destroyed = False
 
-        self.width = width
-        self.height = height
 
         self.create_obstacles()
 
@@ -190,13 +198,20 @@ class ZombieModel(Model):
 
 
         # initial infection
-        for agent in random.sample(self.schedule.agents, int(N * .3)):
+        infection_amount = int(
+            self.num_agents *
+            CONFIG["initial_infection"]
+        )
+
+        for agent in random.sample(
+            self.schedule.agents,
+            infection_amount
+        ):
             agent.state = "I"
-            agent.home_pos = agent.pos
+            agent.ever_infected = True
 
 
-
-        for i in range(5):
+        for i in range(CONFIG["number_of_depots"]):
             depot = SupplyDepot(1000+i, self)
             self.schedule.add(depot)
 
