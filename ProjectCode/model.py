@@ -243,27 +243,37 @@ class ZombieModel(Model):
 
         data = self.datacollector.get_model_vars_dataframe()
 
-        plt.figure(figsize=(10,5))
+        plt.figure(figsize=(12, 6))
 
-        plt.plot(
-            data["Day"],
-            data["Survivors"],
-            label="Survivors")
+        stats = {
+            "Survivors": "green",
+            "Infected": "red",
+            "Escaped": "gray",
+            "Dead": "black"
+        }
 
-        plt.plot(
-            data["Day"],
-            data["Infected"],
-            label="Infected")
+        for stat, color in stats.items():
 
-        plt.plot(
-            data["Day"],
-            data["Escaped"],
-            label="Escaped")
+            plt.plot(
+                data["Day"],
+                data[stat],
+                label=stat
+            )
 
-        plt.plot(
-            data["Day"],
-            data["Dead"],
-            label="Dead")
+            # Get final value
+            final_value = data[stat].iloc[-1]
+            final_day = data["Day"].iloc[-1]
+
+            # Add number at end of line
+            plt.annotate(
+                f"{stat}: {int(final_value)}",
+                xy=(final_day, final_value),
+                xytext=(10, 0),
+                textcoords="offset points",
+                fontsize=10,
+                va="center"
+            )
+
 
         plt.xlabel("Days")
         plt.ylabel("Citizens")
@@ -271,11 +281,23 @@ class ZombieModel(Model):
 
         plt.legend()
 
-        plt.savefig("simulation_results.png")
+        # Give room on the right for labels
+        plt.xlim(
+            data["Day"].min(),
+            data["Day"].max() + 1
+        )
+
+        plt.grid(True)
+
+        plt.tight_layout()
+
+        plt.savefig(
+            "simulation_results.png",
+            dpi=300,
+            bbox_inches="tight"
+        )
 
         plt.show()
-
-
 
     def step(self):
         if self.city_destroyed:
