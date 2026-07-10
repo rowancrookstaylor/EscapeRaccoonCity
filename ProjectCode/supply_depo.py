@@ -31,6 +31,9 @@ class SupplyDepot(Agent):
         if citizen.state != "S":
             return False
 
+        if citizen.age_group == "Child":
+            return False # chidlren cannot pick up weapons
+
         # citizen cannot carry multiple weapons
         if citizen.has_weapon:
             return False

@@ -12,6 +12,7 @@ class CitizenAgent(Agent):
 
         # infection state (healthy = s, exposed = e, infected = i, dead = d, escaped = r)
         self.state = "S"
+        self.age_group = random.choices(["Child", "Adult"], weights=[0.25, 0.75])[0]
         self.infection_timer = 0
         self.ever_infected = False
 
@@ -21,8 +22,6 @@ class CitizenAgent(Agent):
         self.has_weapon = False
         self.weapon_attempts = 0
         self.max_weapon_attempts = 6
-
-        self.speed = 1  # movement
       
         self.home_pos = None    # home position (for infected)
 
@@ -509,14 +508,19 @@ class CitizenAgent(Agent):
         # become infected after exposure
         if self.state == "E":
             self.infection_timer += 1
-            if self.infection_timer >3:
+            if self.infection_timer >2:
                 self.state = "I"
                 self.home_pos = self.pos
                 self.obstacle = True  # infected become obstacles to survivors
 
-        # starvation and thirst
-        self.hunger += .01
-        self.thirst += .02
+        # starvation and thirst 
+        if self.age_group == "Child":
+            self.hunger += .015
+            self.thirst += .03
+        else:
+            self.hunger += .01
+            self.thirst += .02
+
 
         # die of hunger/thirst if not infected, become infected if exposed
         if (self.hunger > 1.0 or self.thirst > 1.0) and self.state != "I" and self.state != "R":
