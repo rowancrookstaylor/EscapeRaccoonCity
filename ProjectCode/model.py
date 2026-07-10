@@ -7,6 +7,7 @@ from mesa.datacollection import DataCollector
 from obstacle import ObstacleAgent
 from supply_depo import SupplyDepot
 import json
+import datetime
 
 with open("config.json") as file: CONFIG = json.load(file)
 
@@ -299,14 +300,24 @@ class ZombieModel(Model):
 
         plt.show()
 
+    def save_results_csv(self):
+        data = self.datacollector.get_model_vars_dataframe()
+
+        filename = ("simulation_results_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".csv")
+        data.to_csv(filename, index=False )
+
+        print("Simulation data saved to simulation_results.csv")
+
     def step(self):
         if self.city_destroyed:
             return
 
-        self.time += 1
+        
         self.schedule.step()
+        self.time += 1
         if self.time >= self.max_time:
             self.datacollector.collect(self)
+            self.save_results_csv()
             self.generate_results()
 
             print("\n--- MISSILE STRIKE ---")
