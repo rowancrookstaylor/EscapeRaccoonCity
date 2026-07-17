@@ -8,6 +8,7 @@ from obstacle import ObstacleAgent
 from supply_depo import SupplyDepot
 import json
 import datetime
+import time
 
 with open("config.json") as file: CONFIG = json.load(file)
 
@@ -126,6 +127,9 @@ class ZombieModel(Model):
 
         self.exits = []
 
+        self.start_time = time.perf_counter()
+        self.execution_time = 0
+
         for x in range(self.width):
             self.exits.append((x,0))
             self.exits.append((x,self.height-1))
@@ -178,7 +182,9 @@ class ZombieModel(Model):
                     sum(
                         d.weapons for d in m.schedule.agents
                         if isinstance(d, SupplyDepot)
-                    )
+                    ),
+
+                "Execution_Time_Seconds": lambda m: m.execution_time,
             }
         )
 
@@ -312,10 +318,15 @@ class ZombieModel(Model):
         if self.city_destroyed:
             return
 
+
         
         self.schedule.step()
         self.time += 1
+
+
         if self.time >= self.max_time:
+            self.execution_time = time.perf_counter() - self.start_time
+
             self.datacollector.collect(self)
             self.save_results_csv()
             self.generate_results()
