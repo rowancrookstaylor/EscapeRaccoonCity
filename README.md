@@ -8,7 +8,7 @@ implemented zombie model, citizen agent, a grid, and a scheduler
 still need to implement A*, updates to zombie behavior, supply depos, and citizen health stats
 
 ## installation instructions
-requries: python 3.14, mesa 1.2.1 (NOT 2.x), numpy, networkx
+requries: python 3.14, mesa 1.2.1 (NOT 2.x)
 
 setup: download and unzip repo folder, all files are in folder titled ProjectCode
 
