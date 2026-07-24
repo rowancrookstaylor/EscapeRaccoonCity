@@ -1,6 +1,6 @@
 {
     "population": 500,
-    "initial_infection": 0.3,
+    "initial_infection": 0.75,
     "max_steps": 30,
     "food_min": 20,
     "food_max": 50,
@@ -8,5 +8,5 @@
     "water_max": 60,
     "width": 100,
     "height": 100,
-    "number_of_depots": 35
+    "number_of_depots": 30
 }
